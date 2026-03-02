@@ -41,6 +41,23 @@ There is currently support for the following device types within Home Assistant:
 
 Rain sensors of supported windows do not report automatically and must be polled every 5 minutes. For this reason, they are disabled by default, because polling uses more radio bandwidth and battery power than simply reporting changed window positions.
 
+## Supported devices
+
+This integration requires the **Velux KLF 200** gateway running firmware version 2.0.0.0 or higher. All [io-homecontrol](http://www.io-homecontrol.com) devices connected to the KLF 200 are supported, including:
+
+- Windows and roof windows
+- Blinds, shutters, and awnings
+- Lights
+- Switches
+- Exterior heating devices
+
+## Unsupported devices
+
+The following devices are not supported by this integration:
+
+- **Velux KLF 150**: Although Velux markets it as the replacement for the KLF 200, the KLF 150 does not provide a local API. However, there is a community [project](https://github.com/uncaught/gpio-shutter-bridge) that bridges the KLF 150's GPIO interface with MQTT. Using this project with additional hardware, you can control your KLF 150 through the [MQTT Cover integration](/integrations/cover.mqtt/).
+- **Velux Active (KIX 300)**: This set uses a different gateway and is not supported by this integration. You can integrate it using the [HomeKit Controller integration](/integrations/homekit_controller) instead, which gives you full control over windows, curtains, covers, and the air quality sensor KLA 300.
+
 ## Prerequisites
 
 1. Make sure you have the password for your gateway's wireless access point.
@@ -69,6 +86,34 @@ Remember: You must complete the configuration within 5 minutes of rebooting the 
 This integration follows standard integration removal. No extra steps are required.
 
 {% include integrations/remove_device_service.md %}
+
+## Data updates
+
+The **Velux** {% term integration %} receives updates for most entities, such as windows, covers, lights, and switches, using push notifications from the gateway. Changes are sent to Home Assistant within a few seconds after they occur, keeping device states up to date automatically.
+
+Window rain sensors are updated using {% term polling %}. The {% term integration %} {% term polling polls %} these sensors every 5 minutes to check for new rain detection events. This is necessary because rain sensors do not report changes automatically.
+
+## Known limitations
+
+- Window rain sensors are disabled by default. Enabling them requires polling the gateway every 5 minutes, which uses more radio bandwidth (and battery power for solar powered windows) than the push-based updates used by other device types.
+- Scenes that are stored in the gateway can only be triggered from Home Assistant. You cannot create, edit, or delete scenes through the integration. All scene management must be done directly on the KLF 200 gateway.
+- Setting up the integration must be completed within 5 minutes of rebooting the KLF 200 gateway, while its Wi-Fi access point is still active.
+
+## Troubleshooting
+
+### The integration becomes unavailable or cannot connect
+
+#### Symptom: Integration is unavailable or fails to connect to the gateway
+
+The integration loses connection to the KLF 200 gateway and cannot reconnect, or Home Assistant shows the integration as unavailable.
+
+##### Description
+
+The KLF 200 gateway supports only a limited number of simultaneous connections and is sensitive to ungraceful connection interruptions. When this limit happens, the gateway stops accepting new connections until it is restarted.
+
+##### Resolution
+
+Power cycle the KLF 200 gateway by unplugging it from the power outlet, waiting a few seconds, and plugging it back in. Home Assistant will reconnect automatically once the gateway is back online.
 
 ## Unsupported Hardware
 
